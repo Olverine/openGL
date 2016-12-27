@@ -4,6 +4,7 @@
 #include <glfw3.h>
 #include <glm\glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <vector>
 
 class Game {
 public:
@@ -21,7 +22,8 @@ public:
 
 class Model {
 public:
-	Model(const char * model_file_path);
+	std::vector< glm::vec3 > vertices;
+	Model(const char * path);
 	~Model();
 };
 

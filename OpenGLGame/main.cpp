@@ -56,6 +56,8 @@ int main(int argc, char* argv) {
 		0.0f,  1.0f, 0.0f,
 	};
 
+	Model* model = new Model("spaceShip.obj");
+
 	// This will identify our vertex buffer
 	GLuint vertexbuffer;
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
@@ -63,7 +65,7 @@ int main(int argc, char* argv) {
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, model->vertices.size() * sizeof(glm::vec3), &model->vertices[0], GL_STATIC_DRAW);
 
 	GLuint programID = ShaderCompiler::LoadShaders("Vertex.shader", "Fragment.shader");
 
@@ -77,6 +79,14 @@ int main(int argc, char* argv) {
 											   // Only during the initialisation
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 	GLuint ColorID = glGetUniformLocation(programID, "inColor");
+
+	//Reset cursor position
+	glfwSetCursorPos(game->window, Game::width / 2, Game::height / 2);
+
+	// Enable depth test
+	glEnable(GL_DEPTH_TEST);
+	// Accept fragment if it closer to the camera than the former one
+	glDepthFunc(GL_LESS);
 
 	do {
 		Time::Update();
@@ -112,9 +122,9 @@ int main(int argc, char* argv) {
 		);
 		// Draw the triangle !
 		glUniform3f(ColorID, 0, 0, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glDrawArrays(GL_TRIANGLES, 0, model->vertices.size()); // Render black faces to give the model opacity
 		glUniform3f(ColorID, 1, 1, 0);
-		glDrawArrays(GL_LINE_LOOP, 0, 3);
+		glDrawArrays(GL_LINE_LOOP, 0, model->vertices.size()); // Render the wireframe
 		glDisableVertexAttribArray(0);
 
 		glfwSwapBuffers(game->window);

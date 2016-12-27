@@ -46,20 +46,21 @@ void Input::ComputeMatricesFromInput(GLFWwindow* window) {
 
 	// Move forward
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		input->position += direction * Time::getDelta() * input->speed;
+		input->position += direction * (Time::getDelta() + 1) * input->speed;
 	}
 	// Move backward
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		input->position -= direction * Time::getDelta() * input->speed;
+		input->position -= direction * (Time::getDelta() + 1) * input->speed;
 	}
 	// Strafe right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		input->position += right * Time::getDelta() * input->speed;
+		input->position += right * (Time::getDelta() + 1) * input->speed;
 	}
 	// Strafe left
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		input->position -= right * Time::getDelta() * input->speed;
+		input->position -= right * (Time::getDelta() + 1) * input->speed;
 	}
+
 }
 
 glm::mat4 Input::GetProjectionMatrix(float fov) {

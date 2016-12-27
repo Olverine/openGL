@@ -21,10 +21,14 @@ public:
 };
 
 class Model {
+	void RenderWireFrame();
+	GLuint shaderProgram;
 public:
-	std::vector< glm::vec3 > vertices;
-	Model(const char * path);
+	std::vector<glm::vec3> vertices;
+	glm::vec3 color;
+	Model(const char * path, glm::vec3 color, GLuint shaderProgram);
 	~Model();
+	void Render(GLuint shaderProgram);
 };
 
 class Time {

@@ -1,11 +1,14 @@
 #include "Engine.h"
 #include <vector>
 
-Model::Model(const char * path) {
+Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram) {
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
 	std::vector< glm::vec3 > temp_normals;
+
+	this->color = color;
+	this->shaderProgram = shaderProgram;
 
 	FILE * file = fopen(path, "r");
 	if (file == NULL) {
@@ -67,4 +70,18 @@ Model::Model(const char * path) {
 
 
 Model::~Model() {
+}
+
+void Model::RenderWireFrame() {
+	GLuint colorID = glGetUniformLocation(shaderProgram, "inColor"); // Get color id in shader
+	glUniform3f(colorID, color.x, color.y, color.z); // Set Color of wireframe
+	for (int i = 0; i < vertices.size() / 3; i++) {
+		glDrawArrays(GL_LINE_LOOP, i * 3, 3); // Render a polygon loop
+	}
+	glUniform3f(colorID, 0, 0, 0); // Reset color to black
+}
+
+void Model::Render(GLuint shaderProgram) {
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Render black faces to give the model opacity
+	RenderWireFrame();
 }

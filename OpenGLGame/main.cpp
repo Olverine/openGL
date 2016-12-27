@@ -7,6 +7,8 @@ using namespace glm;
 
 static const float fov = 70.0f;
 
+void RenderWireFrame(Model* model);
+
 int main(int argc, char* argv) {
 
 	// Check for command line arguments
@@ -56,7 +58,11 @@ int main(int argc, char* argv) {
 		0.0f,  1.0f, 0.0f,
 	};
 
-	Model* model = new Model("spaceShip.obj");
+	GLuint programID = ShaderCompiler::LoadShaders("Vertex.shader", "Fragment.shader");
+
+	// Load the model
+	glm::vec3 color = glm::vec3(1, 1, 0);
+	Model* model = new Model("spaceShip.obj", color, programID);
 
 	// This will identify our vertex buffer
 	GLuint vertexbuffer;
@@ -67,18 +73,9 @@ int main(int argc, char* argv) {
 	// Give our vertices to OpenGL.
 	glBufferData(GL_ARRAY_BUFFER, model->vertices.size() * sizeof(glm::vec3), &model->vertices[0], GL_STATIC_DRAW);
 
-	GLuint programID = ShaderCompiler::LoadShaders("Vertex.shader", "Fragment.shader");
-
-
-	// Or, for an ortho camera :
-	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
-
-
-
 											   // Get a handle for our "MVP" uniform
 											   // Only during the initialisation
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-	GLuint ColorID = glGetUniformLocation(programID, "inColor");
 
 	//Reset cursor position
 	glfwSetCursorPos(game->window, Game::width / 2, Game::height / 2);
@@ -120,11 +117,8 @@ int main(int argc, char* argv) {
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
-		// Draw the triangle !
-		glUniform3f(ColorID, 0, 0, 0);
-		glDrawArrays(GL_TRIANGLES, 0, model->vertices.size()); // Render black faces to give the model opacity
-		glUniform3f(ColorID, 1, 1, 0);
-		glDrawArrays(GL_LINE_LOOP, 0, model->vertices.size()); // Render the wireframe
+		// Draw the model!
+		model->Render(programID);
 		glDisableVertexAttribArray(0);
 
 		glfwSwapBuffers(game->window);

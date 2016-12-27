@@ -36,3 +36,13 @@ public:
 	static float getDelta();
 	static void Update();
 };
+
+class Terrain
+{
+	int sizeX, sizeY;
+public:
+	std::vector<glm::vec3> vertices;
+	Terrain();
+	~Terrain();
+	void Render();
+};

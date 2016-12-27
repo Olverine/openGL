@@ -85,6 +85,9 @@ int main(int argc, char* argv) {
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
 
+	
+	glm::mat4 Projection = Input::GetProjectionMatrix(fov);
+
 	do {
 		Time::Update();
 
@@ -93,7 +96,6 @@ int main(int argc, char* argv) {
 		glViewport(0, 0, game->width, game->height);
 
 		Input::ComputeMatricesFromInput(game->window);
-		glm::mat4 Projection = Input::GetProjectionMatrix(fov);
 		glm::mat4 View = Input::GetViewMatrix();
 		// Model matrix : an identity matrix (model will be at the origin)
 		glm::mat4 Model = glm::mat4(1.0f);

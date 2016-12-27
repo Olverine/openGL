@@ -1,7 +1,9 @@
 #include "Engine.h"
 #include <vector>
 
-Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram) {
+Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque) {
+	this->opaque = opaque;
+
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
@@ -82,6 +84,7 @@ void Model::RenderWireFrame() {
 }
 
 void Model::Render(GLuint shaderProgram) {
-	glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Render black faces to give the model opacity
+	if(opaque)
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Render black faces to give the model opacity
 	RenderWireFrame();
 }

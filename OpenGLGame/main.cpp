@@ -7,8 +7,6 @@ using namespace glm;
 
 static const float fov = 70.0f;
 
-void RenderWireFrame(Model* model);
-
 int main(int argc, char* argv) {
 
 	// Check for command line arguments
@@ -62,7 +60,7 @@ int main(int argc, char* argv) {
 
 	// Load the model
 	glm::vec3 color = glm::vec3(1, 1, 0);
-	Model* model = new Model("spaceShip.obj", color, programID);
+	Model* model = new Model("spaceShip.obj", color, programID, true);
 
 	// This will identify our vertex buffer
 	GLuint vertexbuffer;
@@ -84,6 +82,8 @@ int main(int argc, char* argv) {
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
+	// Cull triengles that are not facing the camera
+	glEnable(GL_CULL_FACE);
 
 	
 	glm::mat4 Projection = Input::GetProjectionMatrix(fov);

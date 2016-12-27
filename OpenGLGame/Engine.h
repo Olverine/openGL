@@ -24,9 +24,11 @@ class Model {
 	void RenderWireFrame();
 	GLuint shaderProgram;
 public:
+	bool opaque; // Should the model be opaque or see through?
 	std::vector<glm::vec3> vertices;
 	glm::vec3 color;
-	Model(const char * path, glm::vec3 color, GLuint shaderProgram);
+	Model(const char * path, glm::vec3 color, GLuint shaderProgram) : Model(path, color, shaderProgram, true) {};
+	Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque);
 	~Model();
 	void Render(GLuint shaderProgram);
 };

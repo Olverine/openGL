@@ -61,6 +61,7 @@ int main(int argc, char* argv) {
 	// Load the model
 	glm::vec3 color = glm::vec3(0, 1, 1);
 	Model* model = new Model("spaceShip.obj", color, programID, true);
+	Terrain* terrain = new Terrain(programID);
 	
 											   // Get a handle for our "MVP" uniform
 											   // Only during the initialisation
@@ -75,7 +76,6 @@ int main(int argc, char* argv) {
 	glDepthFunc(GL_LESS);
 	// Cull triengles that are not facing the camera to optimize performance
 	glEnable(GL_CULL_FACE);
-
 	
 	glm::mat4 Projection = Input::GetProjectionMatrix(fov);
 
@@ -101,6 +101,7 @@ int main(int argc, char* argv) {
 
 		// Draw the model!
 		model->Render(programID);
+		terrain->Render();
 
 		glfwSwapBuffers(game->window);
 		glfwPollEvents();

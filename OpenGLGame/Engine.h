@@ -42,9 +42,10 @@ public:
 class Terrain
 {
 	int sizeX, sizeY;
+	GLfloat density;
 public:
 	std::vector<glm::vec3> vertices;
-	Terrain();
+	Terrain(GLuint shaderProgram);
 	~Terrain();
 	void Render();
 };

@@ -12,7 +12,7 @@ class Input
 	// Initial Field of View
 	float initialFoV = 90.0f;
 
-	float speed = .01f; // 3 units / second
+	float speed = 1; // 3 units / second
 	float mouseSpeed = 0.01f;
 
 public:

@@ -59,18 +59,9 @@ int main(int argc, char* argv) {
 	GLuint programID = ShaderCompiler::LoadShaders("Vertex.shader", "Fragment.shader");
 
 	// Load the model
-	glm::vec3 color = glm::vec3(1, 1, 0);
+	glm::vec3 color = glm::vec3(0, 1, 1);
 	Model* model = new Model("spaceShip.obj", color, programID, true);
-
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, model->vertices.size() * sizeof(glm::vec3), &model->vertices[0], GL_STATIC_DRAW);
-
+	
 											   // Get a handle for our "MVP" uniform
 											   // Only during the initialisation
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
@@ -82,7 +73,7 @@ int main(int argc, char* argv) {
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
-	// Cull triengles that are not facing the camera
+	// Cull triengles that are not facing the camera to optimize performance
 	glEnable(GL_CULL_FACE);
 
 	
@@ -108,20 +99,8 @@ int main(int argc, char* argv) {
 		// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
-		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);
 		// Draw the model!
 		model->Render(programID);
-		glDisableVertexAttribArray(0);
 
 		glfwSwapBuffers(game->window);
 		glfwPollEvents();

@@ -1,13 +1,14 @@
 #include "Engine.h"
 #include <vector>
 
+// vertex buffer identity
+GLuint vertexbuffer;
+
 Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque) {
 	this->opaque = opaque;
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
-	std::vector< glm::vec2 > temp_uvs;
-	std::vector< glm::vec3 > temp_normals;
 
 	this->color = color;
 	this->shaderProgram = shaderProgram;
@@ -32,16 +33,6 @@ Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaq
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 			temp_vertices.push_back(vertex);
 		}
-		else if (strcmp(lineHeader, "vt") == 0) {
-			glm::vec2 uv;
-			fscanf(file, "%f %f\n", &uv.x, &uv.y);
-			temp_uvs.push_back(uv);
-		}
-		else if (strcmp(lineHeader, "vn") == 0) {
-			glm::vec3 normal;
-			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			temp_normals.push_back(normal);
-		}
 		else if (strcmp(lineHeader, "f") == 0) {
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
@@ -53,12 +44,6 @@ Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaq
 			vertexIndices.push_back(vertexIndex[0]);
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
-			uvIndices.push_back(uvIndex[0]);
-			uvIndices.push_back(uvIndex[1]);
-			uvIndices.push_back(uvIndex[2]);
-			normalIndices.push_back(normalIndex[0]);
-			normalIndices.push_back(normalIndex[1]);
-			normalIndices.push_back(normalIndex[2]);
 		}
 	}
 
@@ -68,6 +53,13 @@ Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaq
 		glm::vec3 vertex = temp_vertices[vertexIndex - 1];
 		vertices.push_back(vertex);
 	}
+
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &vertexbuffer);
+	// The following commands will talk about our 'vertexbuffer' buffer
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	// Give our vertices to OpenGL.
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 }
 
 
@@ -84,7 +76,21 @@ void Model::RenderWireFrame() {
 }
 
 void Model::Render(GLuint shaderProgram) {
+	// 1rst attribute buffer : vertices
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glVertexAttribPointer(
+		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
 	if(opaque)
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Render black faces to give the model opacity
 	RenderWireFrame();
+
+	glDisableVertexAttribArray(0);
 }

@@ -10,7 +10,7 @@ class Input
 	// vertical angle : 0, look at the horizon
 	float verticalAngle = 0.0f;
 	// Initial Field of View
-	float initialFoV = 45.0f;
+	float initialFoV = 90.0f;
 
 	float speed = .01f; // 3 units / second
 	float mouseSpeed = 0.01f;

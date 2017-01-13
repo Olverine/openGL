@@ -1,12 +1,14 @@
 #include "Engine.h"
 #include <vector>
 
+using namespace glm;
+
 // vertex buffer identity
 GLuint vertexbuffer;
 // id of color in shader
 GLuint colorID;
 
-Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque) {
+Mesh::Mesh(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque) {
 	this->opaque = opaque;
 
 	colorID = glGetUniformLocation(shaderProgram, "inColor"); // Get color id in shader
@@ -66,18 +68,17 @@ Model::Model(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaq
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 }
 
-
-Model::~Model() {
+Mesh::~Mesh() {
 }
 
-void Model::RenderWireFrame() {
+void Mesh::RenderWireFrame() {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Set PolygonMode to draw wireframes
 	glUniform3f(colorID, color.x, color.y, color.z); // Set Color of wireframe
-	for (int i = 0; i < vertices.size() / 3; i++) {
-		glDrawArrays(GL_LINE_LOOP, i * 3, 3); // Render a polygon loop
-	}
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset Polygon mode to fill
 }
 
-void Model::Render(GLuint shaderProgram) {
+void Mesh::Render() {
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -97,4 +98,11 @@ void Model::Render(GLuint shaderProgram) {
 	RenderWireFrame();
 
 	glDisableVertexAttribArray(0);
+}
+
+vec3 Mesh::GetHorizontalForward() {
+	vec3 forward;
+	forward.x = cos(rotation.x) * -cos(rotation.y);
+	forward.z = sin(rotation.y);
+	return forward;
 }

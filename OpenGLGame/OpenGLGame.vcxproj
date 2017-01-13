@@ -88,12 +88,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\olive\Documents\Visual Studio 2015\Projects\OpenGLGame\OpenGLGame;C:\Users\olive\Documents\Visual Studio 2015\Projects\OpenGLGame\deps\glm-0.9.8.3;C:\Users\olive\Documents\Visual Studio 2015\Projects\OpenGLGame\deps\glfw\x64\include\GLFW;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\deps\glew-2.0.0\include;$(ProjectDir)..\deps\glm-0.9.8.3;$(ProjectDir)..\deps\glfw\Win32\include\GLFW;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\olive\Documents\Visual Studio 2015\Projects\OpenGLGame\deps\glfw\$(Platform)\lib-vc2015;C:\Users\olive\Documents\Visual Studio 2015\Projects\OpenGLGame\deps\glew-2.0.0\lib\Release\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\deps\glfw\$(Platform)\lib-vc2015;$(ProjectDir)..\deps\glew-2.0.0\lib\Release\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -104,10 +104,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\noolt4\Source\Repos\OpenGLGame\OpenGLGame;C:\Users\noolt4\Source\Repos\OpenGLGame\deps\glm-0.9.8.3\glm\gtx;C:\Users\noolt4\Source\Repos\OpenGLGame\deps\glfw\Win32\include\GLFW;C:\Users\noolt4\Source\Repos\OpenGLGame\deps\glew-2.0.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\noolt4\Source\Repos\OpenGLGame\deps\glew-2.0.0;C:\Users\noolt4\Source\Repos\OpenGLGame\deps\glfw\Win32\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,17 +150,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ChaseCamera.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Time.cpp" />
+    <ClCompile Include="Vehicle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChaseCamera.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="Input.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Vehicle.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenGLGame.rc" />

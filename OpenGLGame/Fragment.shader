@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 out vec3 color;
 
 uniform vec3 inColor;

@@ -391,6 +391,8 @@ namespace glm
 	template <typename T, precision P>
 	GLM_FUNC_DECL tvec4<bool, P> isinf(tquat<T, P> const & x);
 
+
+
 	/// @}
 } //namespace glm
 

@@ -1,0 +1,15 @@
+#version 410 core
+
+in vec2 UV;
+
+out vec3 color;
+
+uniform sampler2D renderedTexture;
+uniform sampler2D depthTexture;
+//uniform float xsize;
+//uniform float ysize;
+
+
+void main(){
+	color = (1 - texture(depthTexture, UV).r) * 50000 * texture(renderedTexture, UV).rgb;
+}

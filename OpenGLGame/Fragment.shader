@@ -1,5 +1,5 @@
 #version 410 core
-out vec3 color;
+layout(location = 0) out vec3 color;
 
 uniform vec3 inColor;
 

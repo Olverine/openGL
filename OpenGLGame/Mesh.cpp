@@ -11,6 +11,8 @@ GLuint colorID;
 Mesh::Mesh(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque) {
 	this->opaque = opaque;
 
+	printf("Generating mesh from file: %s \n", path);
+
 	colorID = glGetUniformLocation(shaderProgram, "inColor"); // Get color id in shader
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
@@ -44,7 +46,7 @@ Mesh::Mesh(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
 			if (matches != 9) {
-				printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+				printf("Failed to read file\n");
 				return;
 			}
 			vertexIndices.push_back(vertexIndex[0]);

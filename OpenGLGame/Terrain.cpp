@@ -17,7 +17,7 @@ Terrain::Terrain(GLuint shaderProgram, const char* heightmap)
 	int height = *(int*)&info[22];
 
 	int size = 3* width * height;
-	printf(" Generating %i * %i terrain \n", width, height);
+	printf("Generating %i * %i terrain \n", width, height);
 	unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
 	fread(data, sizeof(unsigned char), size, f); // read the rest of the data at once
 	fclose(f);
@@ -100,26 +100,47 @@ void Terrain::Render() {
 
 	GLuint colorID = glGetUniformLocation(tShaderProgram, "inColor"); // Get color id in shader
 	// Draw faces first to make the terrain opaque
-	glUniform3f(colorID, 0, 0, 0); // Set Color of the faces
+	glUniform3f(colorID, 0, 0.01, 0.01); // Set Color of the faces
 	glDrawArrays(GL_TRIANGLES, sizeX * sizeY * 4 + (sizeX +1), sizeX*sizeY *6);
 	// Draw the grid
-	glUniform3f(colorID, 1, 0, 1); // Set Color of wireframe
+	glUniform3f(colorID, 0, 1, 1); // Set Color of wireframe
 	glDrawArrays(GL_LINES, 0, sizeX * sizeY * 4);
 }
 
 float Terrain::GetElevation(float x, float y) {
-	int xx = x;
-	int yy = y;
 	int halfSize = sizeX / density / 2;
 	float elevation = 0;
 	x += halfSize;
 	y += halfSize;
 	x *= density;
 	y *= density;
-	// DrawLine(glm::vec3(xx, 512, yy), vertices[y * sizeX + (x*2)]);
-	printf("%f %f \n", x - floor(x), y);
 	float vertexHeight = Lerp(terrainHeight[(int)x][(int)y], terrainHeight[(int)x + 1][(int)y], x - floor(x));
 	float nextVertexHeight = Lerp(terrainHeight[(int)x][(int)y + 1], terrainHeight[(int)x + 1][(int)y + 1], x - floor(x));
 	float height = Lerp(vertexHeight, nextVertexHeight, y - floor(y));
 	return height + 100;
+}
+
+glm::vec3 Terrain::GetNormal(float x, float y) {
+	int halfSize = sizeX / density / 2;
+	x += halfSize;
+	y += halfSize;
+	x *= density;
+	y *= density; 
+
+	glm::vec3 firstVector;
+	glm::vec3 secondVector;
+	float height;
+
+	if (x - floor(x) < 0.5f && y - floor(y) < 0.5f) {
+		height = terrainHeight[(int)x][(int)y];
+		firstVector = glm::vec3(1 / density, terrainHeight[(int)x + 1][(int)y] - height, 0);
+		secondVector = glm::vec3(0, terrainHeight[(int)x][(int)y + 1] - height, 1 / density);
+	}
+	else {
+		height = terrainHeight[(int)x + 1][(int)y + 1];
+		firstVector = glm::vec3(1 / density, terrainHeight[(int)x][(int)y + 1] - height, 0);
+		secondVector = glm::vec3(0, terrainHeight[(int)x + 1][(int)y] - height, 1 / density);
+	}
+	glm::vec3 normal = glm::cross(firstVector, secondVector);
+	return glm::normalize(normal) * glm::vec3(-1);
 }

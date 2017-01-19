@@ -8,17 +8,12 @@
 #include <vector>
 
 float Lerp(float x, float y, float a);
-void DrawLine(glm::vec3 p1, glm::vec3 p2);
+//void DrawLine(glm::vec3 p1, glm::vec3 p2);
 GLuint GetShaderProgram();
 
-class Game {
-public:
-	static const int width = 640;
-	static const int height = 480;
-	static const int antiAliasing = 4;
-	static const bool fullscreen = false;
-	GLFWwindow* window;
-};
+int GetWidth();
+int GetHeight();
+GLFWwindow* GetWindow();
 
 class ShaderCompiler {
 public:
@@ -106,11 +101,11 @@ public:
 	void Render();
 
 	float GetElevation(float x, float y);
+	glm::vec3 GetNormal(float x, float y);
 };
 
 class Input
 {
 public:
 	static bool GetKey(int key);
-	static void SetWindow(GLFWwindow* w);
 };

@@ -18,7 +18,7 @@ void Camera::ComputeMatricesFromInput(GLFWwindow* window) {
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	// Reset mouse position for next frame
-	glfwSetCursorPos(window, Game::width / 2, Game::height / 2);
+	glfwSetCursorPos(window, GetWidth() / 2, GetHeight() / 2);
 
 	int sizeX, sizeY;
 	glfwGetWindowSize(window, &sizeX, &sizeY);
@@ -64,7 +64,7 @@ void Camera::ComputeMatricesFromInput(GLFWwindow* window) {
 }
 
 glm::mat4 Camera::GetProjectionMatrix(float fov) {
-	glm::mat4 Projection = glm::perspective(glm::radians(fov), (float)Game::width / (float)Game::height, 0.1f, 20000.0f);
+	glm::mat4 Projection = glm::perspective(glm::radians(fov), (float)GetWidth() / ((float)GetHeight()), 0.1f, 20000.0f);
 	return Projection;
 }
 

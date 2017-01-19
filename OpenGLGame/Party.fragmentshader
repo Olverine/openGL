@@ -1,0 +1,17 @@
+#version 410 core
+
+in vec2 UV;
+
+out vec3 color;
+
+uniform sampler2D renderedTexture;
+uniform float time;
+//uniform float xsize;
+//uniform float ysize;
+
+void main(){
+	color = mix(texture(renderedTexture, UV + vec2(0,0.1)).xyz, texture(renderedTexture, UV + vec2(0,-0.1)).xyz, (cos(time*2) + 1));
+	color.x = mix (0, 1, cos(time * 2));
+	color.y = mix (0, 1, cos(time));;
+	color.y = mix (0, 1, cos(time * 4));;
+}

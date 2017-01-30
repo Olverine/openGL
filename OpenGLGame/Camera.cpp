@@ -64,7 +64,7 @@ void Camera::ComputeMatricesFromInput(GLFWwindow* window) {
 }
 
 glm::mat4 Camera::GetProjectionMatrix(float fov) {
-	glm::mat4 Projection = glm::perspective(glm::radians(fov), (float)GetWidth() / ((float)GetHeight()), 0.1f, 20000.0f);  
+	glm::mat4 Projection = glm::perspective(glm::radians(fov), (float)GetWidth() / ((float)GetHeight() / 2), 0.1f, 20000.0f);
 	return Projection;
 }
 

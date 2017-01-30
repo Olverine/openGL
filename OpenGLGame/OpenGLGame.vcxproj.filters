@@ -48,6 +48,9 @@
     <ClCompile Include="ChaseCamera.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Road.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="ChaseCamera.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Road.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

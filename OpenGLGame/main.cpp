@@ -4,11 +4,10 @@
 #include <Vehicle.h>
 #include <ChaseCamera.h>
 #include <chrono>
-#include <Windows.h>
 using namespace glm;
 
-static const float fov = 60.0f;
-Camera* mainCamera;
+static const float fov = 50.0f;
+Camera* camera[2];
 GLuint shaderProgram;
 GLuint quad_vertexbuffer;
 
@@ -17,11 +16,16 @@ GLuint texID;
 GLuint depthID;
 GLuint depthTexture;
 
-static int width = 640;
-static int height = 480;
+static int width = 800;
+static int height = 600;
 static int antiAliasing = 4;
 static bool fullscreen = false;
 GLFWwindow* window;
+
+unsigned char* levelData; 
+unsigned char* LoadMap(const char* file);
+
+int playerCount = 2;
 
 void RenderFrameBuffer(GLuint name, GLuint shaderProgram, GLuint texture);
 
@@ -70,15 +74,22 @@ int main(int argc, char* argv) {
 	glBindVertexArray(VertexArrayID);
 
 	shaderProgram = ShaderCompiler::LoadShaders("Vertex.shader", "Fragment.shader");
+	GLuint quad_programID = ShaderCompiler::LoadShaders("Passthrough.vertexshader", "Fog.fragmentshader");
 
 	// Load the model
 	glm::vec3 color = glm::vec3(1, 0, 1);
-	Vehicle* mesh = new Vehicle("spaceShip.obj", color, shaderProgram);
-	mesh->scale = glm::vec3(0.1f, 0.1f, 0.1f);
-	Terrain* terrain = new Terrain(shaderProgram, "heightmap.bmp");
-	mesh->terrain = terrain;
-
-	mainCamera = new ChaseCamera(mesh);
+	Vehicle* player[] = { 
+		new Vehicle("spaceShip2.obj", color, shaderProgram, GLFW_JOYSTICK_1),
+		new Vehicle("spaceShip2.obj", glm::vec3(1, 1, 0), shaderProgram,GLFW_JOYSTICK_2)
+	};
+	// Load level from file and generate terrain
+	levelData = LoadMap("heightmap.bmp");
+	Terrain* terrain = new Terrain(shaderProgram, levelData);
+	for (int i = 0; i < playerCount; i++) {
+		player[i]->scale = glm::vec3(2, 2, 2);
+		player[i]->terrain = terrain;
+		camera[i] = new ChaseCamera(player[i]);
+	}
 
 	// Get a handle for our "MVP" uniform
 	// Only during the initialisation
@@ -105,12 +116,16 @@ int main(int argc, char* argv) {
 	float fogColor[] = { 1.0f, 0.0f, 1.0f, 1.0f };
 	glFogfv(GL_FOG_COLOR, fogColor);
 
-	glm::mat4 Projection = mainCamera->GetProjectionMatrix(fov);
+	glm::mat4 Projection[] = {
+		camera[0]->GetProjectionMatrix(fov),
+		camera[1]->GetProjectionMatrix(fov)
+	};
 
-	mesh->Init();
+	player[0]->Init();
+	player[1]->Init();
 
 	// ---------------------------------------------
-	// Render to Texture - specific code begins here
+	// Frame buffer code
 	// ---------------------------------------------
 
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
@@ -182,41 +197,54 @@ int main(int argc, char* argv) {
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
 
-	// Create and compile our GLSL program from the shaders
-	GLuint quad_programID = ShaderCompiler::LoadShaders("Passthrough.vertexshader", "Fog.fragmentshader");
 	texID = glGetUniformLocation(quad_programID, "renderedTexture");
 	depthID = glGetUniformLocation(quad_programID, "depthTexture");
 
 	do {
 		// Render to our framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName[0]);
-		glViewport(0, 0, width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
-		
-		glClearColor(0, 0, 0, 1); 
+
+		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 View = mainCamera->GetViewMatrix();
-		// Model matrix
-		//glm::quat meshRot = quat(mesh->rotation);
-		glm::mat4 Model = glm::translate(glm::mat4(1.0f), mesh->position) * glm::scale(glm::mat4(1.0f), mesh->scale) * glm::rotate(glm::mat4(1.0), mesh->rotation.x, glm::vec3(1,0,0)) * glm::rotate(glm::mat4(1.0), mesh->rotation.y, glm::vec3(0, 1, 0)) * glm::rotate(glm::mat4(1.0), mesh->rotation.z, glm::vec3(0, 0, 1));
-		// ModelViewProjection : multiplication of our 3 matrices
-		glm::mat4 mvp = Projection * View * Model;
-
+		//
+		//	RENDER FOR ALL PLAYERS
+		//
 		glUseProgram(shaderProgram);
+		for (int i = 0; i < playerCount; i++) {
+			if (i == 0)
+				glViewport(0, 0, width, height / 2);
+			else if (i == 1)
+				glViewport(0, height / 2, width, height / 2);
 
-		// Send our transformation to the currently bound shader, in the "MVP" uniform
-		// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-		mesh->Update();
-		mainCamera->Update();
+			player[i]->Update();
+			camera[i]->Update();
 
-		// Draw the model!
-		mesh->Render();
-		
-		Model = glm::mat4(1.0f);
-		mvp = Projection * View * Model;
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-		terrain->Render();
+			glm::mat4 View = camera[i]->GetViewMatrix();
+			glm::mat4 Model; 
+			glm::mat4 mvp;
+
+			// Draw all players
+			for (int p = 0; p < playerCount; p++) {
+				// Model matrix
+				glm::quat meshRot = quat(player[p]->rotation);
+				glm::mat4 Model = glm::translate(glm::mat4(1.0f), player[p]->position) * glm::scale(glm::mat4(1.0f), player[p]->scale) * mat4_cast(meshRot);
+				// ModelViewProjection : multiplication of our 3 matrices
+				mvp = Projection[i] * View * Model;
+
+				// Send our transformation to the currently bound shader, in the "MVP" uniform
+				// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+				glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+				// Draw the model!
+				player[p]->Render();
+			}
+
+			Model = glm::mat4(1.0f);
+			mvp = Projection[0] * View * Model;
+			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+			terrain->Render();
+		}
 
 		//RenderFrameBuffer(FramebufferName[1], quad_programID, renderedTexture[0]);
 	// Render on the whole framebuffer, complete from the lower left corner to the upper right
@@ -312,6 +340,23 @@ float Lerp(float x, float y, float a) {
 
 	glDrawArrays(GL_LINES, 0, 2);
 }*/
+
+unsigned char* LoadMap(const char* file) {
+	printf("Loading level from file %s\n", file);
+	FILE* f = fopen(file, "rb");
+	unsigned char info[54];
+	fread(info, sizeof(unsigned char), 54, f); // read the 54-byte head
+
+	// extract image height and width from header
+	int width = *(int*)&info[18];
+	int height = *(int*)&info[22];
+
+	int size = 3 * width * height;
+	unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
+	fread(data, sizeof(unsigned char), size, f); // read the rest of the data at once
+	fclose(f);
+	return data;
+}
 
 GLuint GetShaderProgram() {
 	return shaderProgram;

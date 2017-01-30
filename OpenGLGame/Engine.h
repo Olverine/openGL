@@ -56,7 +56,7 @@ class Camera
 {
 
 	// Initial Field of View
-	float initialFoV = 90.0f;
+	float initialFoV = 60.0f;
 
 	float speed = 1; // 3 units / second
 	float mouseSpeed = 0.01f;
@@ -79,9 +79,6 @@ public:
 	static void ComputeMatricesFromInput(GLFWwindow* window);
 };
 
-Camera* GetCamera();
-Camera* SetCamera(Camera);
-
 class Time {
 public:
 	static float getDelta();
@@ -96,7 +93,7 @@ class Terrain
 public:
 	glm::vec2 physicalSize;
 	std::vector<glm::vec3> vertices;
-	Terrain(GLuint shaderProgram, const char* heightmap);
+	Terrain(GLuint shaderProgram, unsigned char* data);
 	~Terrain();
 	void Render();
 

@@ -4,19 +4,17 @@
 float currentVelocity = 0;
 
 void Vehicle::Init() {
-	position = glm::vec3(0, 256, 0);
+	position = glm::vec3(rand() % 1000 + 1, 256, rand() % 1000 + 1);
 }
-
-float bank;
 
 void Vehicle::Update() {
 	// Check presence of joystick
 	joystickPresent = glfwJoystickPresent(joystick) == 1;
 
-	// Get joystick iput values
+	// Get joystick input values
 	int count;
-	const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
-	const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
+	const float *axes = glfwGetJoystickAxes(joystick, &count);
+	const unsigned char *buttons = glfwGetJoystickButtons(joystick, &count);
 
 	// Get turn input from keyboard
 	float turnInput = 0;
@@ -69,15 +67,17 @@ void Vehicle::Update() {
 		brakeInput = 1;
 	}
 
+	//bank = Lerp(bank, bankAngle * turnInput, bankSpeed);
+
 	// Get surface normal from terrain
 	glm::vec3 norm = terrain->GetNormal(position.x, position.z);
 	//printf("%f,%f,%f\n",norm.x, norm.y, norm.z);
 
-	rotation.y += glm::radians((/*bank / glm::radians(bankAngle)*/ turnInput)* angularVelocity);
-	rotation.z = Lerp(rotation.z, atan2(norm.x, norm.y), 0.01f);
-	rotation.x = Lerp(rotation.x, -(atan2(norm.z, sqrt(pow(norm.x, 2) + pow(norm.y, 2)))),0.1f);
-
-	//rotation += glm::vec3(Lerp(bank, glm::radians(turnInput * bankAngle), bankSpeed), 0, 0);
+	//rotation.y += glm::radians((bankAngle) * angularVelocity);
+	//rotation.z = Lerp(rotation.z, atan2(norm.x, norm.y), 0.01f);
+	//rotation.x = Lerp(rotation.x, -(atan2(norm.z, sqrt(pow(norm.x, 2) + pow(norm.y, 2)))),0.1f);
+	
+	rotation = glm::vec3(Lerp(rotation.x, glm::radians(turnInput * bankAngle), bankSpeed), rotation.y + (rotation.x / glm::radians(bankAngle) * glm::radians(angularVelocity)), 0);
 
 	currentVelocity = Lerp(currentVelocity, throttleInput * velocity, acceleration);
 

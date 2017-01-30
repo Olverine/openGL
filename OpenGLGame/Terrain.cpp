@@ -5,31 +5,12 @@ GLuint tShaderProgram;
 
 float terrainHeight[256][256];
 
-Terrain::Terrain(GLuint shaderProgram, const char* heightmap)
+Terrain::Terrain(GLuint shaderProgram, unsigned char* data)
 {
-	int i;
-	FILE* f = fopen(heightmap, "rb");
-	unsigned char info[54];
-	fread(info, sizeof(unsigned char), 54, f); // read the 54-byte head
-											   
-	// extract image height and width from header
-	int width = *(int*)&info[18];
-	int height = *(int*)&info[22];
-
-	int size = 3* width * height;
-	printf("Generating %i * %i terrain \n", width, height);
-	unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
-	fread(data, sizeof(unsigned char), size, f); // read the rest of the data at once
-	fclose(f);
-
-	for (i = 0; i < size; i ++)
-	{
-		//unsigned char tmp = data[i] + data[(i)+1] + data[(i)+2];
-	}
-
+	printf("Generating terrain\n");
 	tShaderProgram = shaderProgram;
-	sizeX = width;
-	sizeY = height;
+	sizeX = 256;
+	sizeY = 256;
 	density = 0.002f;
 	heightScale = 40.0f;
 	physicalSize = glm::vec2(sizeX / density, sizeY / density);
@@ -38,9 +19,9 @@ Terrain::Terrain(GLuint shaderProgram, const char* heightmap)
 	// Draw Lines in the x-axis
 	for (int y = 0; y < sizeY; y++) {
 		for (int x = 1; x < sizeX; x++) {
-			glm::vec3 vert = glm::vec3((x-1) / density - halfSize, data[y * height * 3 + ((x-1) * 3)] * heightScale, y / density - halfSize);
+			glm::vec3 vert = glm::vec3((x-1) / density - halfSize, data[y * sizeY * 3 + ((x-1) * 3)] * heightScale, y / density - halfSize);
 			vertices.push_back(vert);
-			vert = glm::vec3(x / density - halfSize, data[y * height * 3 + (x * 3)] * heightScale, y / density - halfSize);
+			vert = glm::vec3(x / density - halfSize, data[y * sizeY * 3 + (x * 3)] * heightScale, y / density - halfSize);
 			vertices.push_back(vert);
 			terrainHeight[x][y] = vert.y;
 		}
@@ -48,9 +29,9 @@ Terrain::Terrain(GLuint shaderProgram, const char* heightmap)
 	// Draw lines in the y-axis
 	for (int x = 0; x < sizeX; x++) {
 		for (int y = 1; y < sizeY; y++) {
-			glm::vec3 vert = glm::vec3(x / density - halfSize, data[(y-1) * height * 3 + (x * 3)] * heightScale, (y-1) / density - halfSize);
+			glm::vec3 vert = glm::vec3(x / density - halfSize, data[(y-1) * sizeY * 3 + (x * 3)] * heightScale, (y-1) / density - halfSize);
 			vertices.push_back(vert);
-			vert = glm::vec3(x / density - halfSize, data[y * height * 3 + (x*3)] * heightScale, y / density - halfSize);
+			vert = glm::vec3(x / density - halfSize, data[y * sizeY * 3 + (x*3)] * heightScale, y / density - halfSize);
 			vertices.push_back(vert);
 		}
 	}
@@ -58,19 +39,19 @@ Terrain::Terrain(GLuint shaderProgram, const char* heightmap)
 	for (int y = 1; y < sizeY; y++) {
 		for (int x = 1; x < sizeX; x++) {
 			// first triangle
-			glm::vec3 vert = glm::vec3((x - 1) / density - halfSize, data[y * height * 3 + ((x - 1) * 3)] * heightScale - wireframeOffset, y / density - halfSize);
+			glm::vec3 vert = glm::vec3((x - 1) / density - halfSize, data[y * sizeY * 3 + ((x - 1) * 3)] * heightScale - wireframeOffset, y / density - halfSize);
 			vertices.push_back(vert);
-			vert = glm::vec3(x / density - halfSize, data[y * height * 3 + (x * 3)] * heightScale - wireframeOffset, y / density - halfSize);
+			vert = glm::vec3(x / density - halfSize, data[y * sizeY * 3 + (x * 3)] * heightScale - wireframeOffset, y / density - halfSize);
 			vertices.push_back(vert);
-			vert = glm::vec3(x / density - halfSize, data[(y-1) * height * 3 + (x * 3)] * heightScale - wireframeOffset, (y-1) / density - halfSize);
+			vert = glm::vec3(x / density - halfSize, data[(y-1) * sizeY * 3 + (x * 3)] * heightScale - wireframeOffset, (y-1) / density - halfSize);
 			vertices.push_back(vert);
 
 			// second triangle
-			vert = glm::vec3((x - 1) / density - halfSize, data[y * height * 3 + ((x - 1) * 3)] * heightScale - wireframeOffset, y / density - halfSize);
+			vert = glm::vec3((x - 1) / density - halfSize, data[y * sizeY * 3 + ((x - 1) * 3)] * heightScale - wireframeOffset, y / density - halfSize);
 			vertices.push_back(vert);
-			vert = glm::vec3(x / density - halfSize, data[(y - 1) * height * 3 + (x * 3)] * heightScale - wireframeOffset, (y - 1) / density - halfSize);
+			vert = glm::vec3(x / density - halfSize, data[(y - 1) * sizeY * 3 + (x * 3)] * heightScale - wireframeOffset, (y - 1) / density - halfSize);
 			vertices.push_back(vert);
-			vert = glm::vec3((x - 1) / density - halfSize, data[(y - 1) * height * 3 + ((x - 1) * 3)] * heightScale - wireframeOffset, (y - 1) / density - halfSize);
+			vert = glm::vec3((x - 1) / density - halfSize, data[(y - 1) * sizeY * 3 + ((x - 1) * 3)] * heightScale - wireframeOffset, (y - 1) / density - halfSize);
 			vertices.push_back(vert);
 		}
 	}

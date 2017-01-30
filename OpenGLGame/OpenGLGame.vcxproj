@@ -156,6 +156,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Road.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Time.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="ChaseCamera.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Road.h" />
     <ClInclude Include="Vehicle.h" />
   </ItemGroup>
   <ItemGroup>

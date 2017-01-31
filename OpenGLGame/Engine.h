@@ -22,12 +22,17 @@ public:
 
 class GameObject
 {
+	// vertex buffer identity
+	GLuint vertexbuffer;
+	// id of color in shader
+	GLuint colorID;
 public:
 	GameObject();
 	~GameObject();
 
 	virtual void Init();
 	virtual void Update();
+	virtual void Render();
 };
 
 class Mesh : public GameObject {
@@ -85,7 +90,7 @@ public:
 	static void Update();
 };
 
-class Terrain
+class Terrain : public GameObject
 {
 	int sizeX, sizeY;
 	GLfloat density;

@@ -3,6 +3,7 @@
 #include <Engine.h>
 #include <Vehicle.h>
 #include <ChaseCamera.h>
+#include <Road.h>
 #include <chrono>
 using namespace glm;
 
@@ -85,6 +86,7 @@ int main(int argc, char* argv) {
 	// Load level from file and generate terrain
 	levelData = LoadMap("heightmap.bmp");
 	Terrain* terrain = new Terrain(shaderProgram, levelData);
+	Road* road = new Road(levelData, terrain);
 	for (int i = 0; i < playerCount; i++) {
 		player[i]->scale = glm::vec3(2, 2, 2);
 		player[i]->terrain = terrain;
@@ -244,6 +246,7 @@ int main(int argc, char* argv) {
 			mvp = Projection[0] * View * Model;
 			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 			terrain->Render();
+			road->Render();
 		}
 
 		//RenderFrameBuffer(FramebufferName[1], quad_programID, renderedTexture[0]);

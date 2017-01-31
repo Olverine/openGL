@@ -14,3 +14,6 @@ void GameObject::Init() {
 void GameObject::Update() {
 
 }
+void GameObject::Render() {
+
+}

@@ -5,6 +5,8 @@
 #include <ChaseCamera.h>
 #include <Road.h>
 #include <chrono>
+#include <vector>
+#include <Fence.h>
 using namespace glm;
 
 static const float fov = 50.0f;
@@ -17,16 +19,18 @@ GLuint texID;
 GLuint depthID;
 GLuint depthTexture;
 
-static int width = 800;
-static int height = 600;
+static int width = 1366;
+static int height = 768;
 static int antiAliasing = 4;
-static bool fullscreen = false;
+static bool fullscreen = true;
 GLFWwindow* window;
 
 unsigned char* levelData; 
 unsigned char* LoadMap(const char* file);
 
 int playerCount = 2;
+
+std::vector<GameObject*> gameObjects;
 
 void RenderFrameBuffer(GLuint name, GLuint shaderProgram, GLuint texture);
 
@@ -91,6 +95,16 @@ int main(int argc, char* argv) {
 		player[i]->scale = glm::vec3(2, 2, 2);
 		player[i]->terrain = terrain;
 		camera[i] = new ChaseCamera(player[i]);
+		gameObjects.push_back(player[i]);
+	}
+
+	gameObjects.push_back(terrain);
+	//gameObjects.push_back(road);
+
+	for (int i = 0; i < 10; i++) {
+		Fence* f = new Fence(vec2(127000));
+		gameObjects.push_back(f);
+		f->position = vec3(0, i * 100, 0);
 	}
 
 	// Get a handle for our "MVP" uniform
@@ -123,8 +137,10 @@ int main(int argc, char* argv) {
 		camera[1]->GetProjectionMatrix(fov)
 	};
 
-	player[0]->Init();
-	player[1]->Init();
+	for each (GameObject* go in gameObjects)
+	{
+		go->Init();
+	}
 
 	// ---------------------------------------------
 	// Frame buffer code
@@ -203,7 +219,7 @@ int main(int argc, char* argv) {
 	depthID = glGetUniformLocation(quad_programID, "depthTexture");
 
 	do {
-		// Render to our framebuffer
+		// Render to framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName[0]);
 
 		glClearColor(0, 0, 0, 1);
@@ -213,24 +229,30 @@ int main(int argc, char* argv) {
 		//	RENDER FOR ALL PLAYERS
 		//
 		glUseProgram(shaderProgram);
+
+		// Update every gameObject before rendering
+		for each (GameObject* go in gameObjects)
+		{
+			go->Update();
+		}
+
 		for (int i = 0; i < playerCount; i++) {
 			if (i == 0)
 				glViewport(0, 0, width, height / 2);
 			else if (i == 1)
 				glViewport(0, height / 2, width, height / 2);
 
-			player[i]->Update();
 			camera[i]->Update();
 
 			glm::mat4 View = camera[i]->GetViewMatrix();
 			glm::mat4 Model; 
 			glm::mat4 mvp;
 
-			// Draw all players
-			for (int p = 0; p < playerCount; p++) {
+			for each (GameObject* go in gameObjects)
+			{
 				// Model matrix
-				glm::quat meshRot = quat(player[p]->rotation);
-				glm::mat4 Model = glm::translate(glm::mat4(1.0f), player[p]->position) * glm::scale(glm::mat4(1.0f), player[p]->scale) * mat4_cast(meshRot);
+				glm::quat meshRot = quat(go->rotation);
+				glm::mat4 Model = glm::translate(glm::mat4(1.0f), go->position) * glm::scale(glm::mat4(1.0f), go->scale) * mat4_cast(meshRot);
 				// ModelViewProjection : multiplication of our 3 matrices
 				mvp = Projection[i] * View * Model;
 
@@ -239,14 +261,8 @@ int main(int argc, char* argv) {
 				glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
 				// Draw the model!
-				player[p]->Render();
+				go->Render();
 			}
-
-			Model = glm::mat4(1.0f);
-			mvp = Projection[0] * View * Model;
-			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-			terrain->Render();
-			road->Render();
 		}
 
 		//RenderFrameBuffer(FramebufferName[1], quad_programID, renderedTexture[0]);

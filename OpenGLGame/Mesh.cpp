@@ -3,11 +3,6 @@
 
 using namespace glm;
 
-// vertex buffer identity
-GLuint vertexbuffer;
-// id of color in shader
-GLuint colorID;
-
 Mesh::Mesh(const char * path, glm::vec3 color, GLuint shaderProgram, bool opaque) {
 	this->opaque = opaque;
 
@@ -81,17 +76,7 @@ void Mesh::RenderWireFrame() {
 }
 
 void Mesh::Render() {
-	// 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
+	GameObject::Render();
 
 	glUniform3f(colorID, 0, 0, 0); // Reset color to black
 

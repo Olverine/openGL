@@ -24,7 +24,6 @@ Road::Road(unsigned char* data, Terrain* terrain)
 	printf("found %i nodes\n", foundNodes);
 	int halfSize = 256 / 0.002f / 2;
 	for (int i = 0; i < foundNodes; i++) {
-		printf("%f, %f\n", nodes[i].x, nodes[i].y);
 		vertices.push_back(glm::vec3(nodes[i].x / 0.002f - halfSize, terrain->GetElevation(nodes[i].x / 0.002f - halfSize, nodes[i].y / 0.002f - halfSize), nodes[i].y / 0.002f - halfSize));
 	}
 
@@ -36,16 +35,7 @@ Road::Road(unsigned char* data, Terrain* terrain)
 }
 
 void Road::Render() {
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, roadVertexbuffer);
-	glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
+	GameObject::Render();
 
 	glUniform3f(roadColorID, 1, 0, 0); // Reset color to black
 

@@ -1,6 +1,5 @@
 #include "Engine.h"
 
-GLuint terrainVertexBuffer;
 GLuint tShaderProgram;
 
 float terrainHeight[256][256];
@@ -12,7 +11,7 @@ Terrain::Terrain(GLuint shaderProgram, unsigned char* data)
 	sizeX = 256;
 	sizeY = 256;
 	density = 0.002f;
-	heightScale = 40.0f;
+	heightScale = 4.0f;
 	physicalSize = glm::vec2(sizeX / density, sizeY / density);
 	int halfSize = sizeX / density / 2;
 	float wireframeOffset = 10;
@@ -56,9 +55,9 @@ Terrain::Terrain(GLuint shaderProgram, unsigned char* data)
 		}
 	}
 
-	// Generate 1 buffer, put the resulting identifier in terrainVertexBuffer
-	glGenBuffers(1, &terrainVertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, terrainVertexBuffer);
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 }
 
@@ -67,25 +66,14 @@ Terrain::~Terrain()
 }
 
 void Terrain::Render() {
-	// 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, terrainVertexBuffer);
-	glVertexAttribPointer(
-		0,                  
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
+	GameObject::Render();
 
-	GLuint colorID = glGetUniformLocation(tShaderProgram, "inColor"); // Get color id in shader
 	// Draw faces first to make the terrain opaque
 	glUniform3f(colorID, 0, 0.01, 0.01); // Set Color of the faces
-	glDrawArrays(GL_TRIANGLES, sizeX * sizeY * 4 + (sizeX +1), sizeX*sizeY *6);
+	glDrawArrays(GL_TRIANGLES, (sizeX * sizeY * 4) - 1030, sizeX*sizeY *6);
 	// Draw the grid
-	glUniform3f(colorID, 0, 1, 1); // Set Color of wireframe
-	glDrawArrays(GL_LINES, 0, sizeX * sizeY * 4);
+	SetColor(glm::vec3(0, 1, 1)); // Set Color of wireframe
+	glDrawArrays(GL_LINES, 0, (sizeX * sizeY * 4) - 1030);
 }
 
 float Terrain::GetElevation(float x, float y) {

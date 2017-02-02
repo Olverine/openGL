@@ -22,6 +22,7 @@ public:
 
 class GameObject
 {
+protected:
 	// vertex buffer identity
 	GLuint vertexbuffer;
 	// id of color in shader
@@ -29,6 +30,15 @@ class GameObject
 public:
 	GameObject();
 	~GameObject();
+
+	std::vector<glm::vec3> vertices;
+
+	// Transformation vectors
+	glm::vec3 position = glm::vec3(0, 0, 0);
+	glm::vec3 rotation = glm::vec3(0, 0, 0);
+	glm::vec3 scale = glm::vec3(1, 1, 1);
+
+	void SetColor(glm::vec3 color);
 
 	virtual void Init();
 	virtual void Update();
@@ -39,13 +49,7 @@ class Mesh : public GameObject {
 	void RenderWireFrame();
 	GLuint shaderProgram;
 public:
-	// Transformation vectors
-	glm::vec3 position;
-	glm::vec3 rotation;
-	glm::vec3 scale;
-
 	bool opaque; // Should the model be opaque or see through?
-	std::vector<glm::vec3> vertices;
 	glm::vec3 color;
 
 	Mesh(const char * path, glm::vec3 color, GLuint shaderProgram) : Mesh(path, color, shaderProgram, true) {};
@@ -59,7 +63,6 @@ public:
 
 class Camera
 {
-
 	// Initial Field of View
 	float initialFoV = 60.0f;
 
@@ -97,7 +100,6 @@ class Terrain : public GameObject
 	float heightScale;
 public:
 	glm::vec2 physicalSize;
-	std::vector<glm::vec3> vertices;
 	Terrain(GLuint shaderProgram, unsigned char* data);
 	~Terrain();
 	void Render();

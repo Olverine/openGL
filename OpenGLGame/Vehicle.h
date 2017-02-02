@@ -2,6 +2,7 @@
 #include "Engine.h"
 class Vehicle : public Mesh
 {
+	float currentVelocity = 0;
 public:
 	Terrain* terrain;
 	float velocity;

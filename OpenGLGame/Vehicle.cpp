@@ -1,7 +1,6 @@
 #include "Vehicle.h"
+#include "Fence.h"
 #include <cmath>
-
-float currentVelocity = 0;
 
 void Vehicle::Init() {
 	position = glm::vec3(rand() % 1000 + 1, 256, rand() % 1000 + 1);
@@ -88,21 +87,25 @@ void Vehicle::Update() {
 	position += GetHorizontalForward() * currentVelocity;
 
 	// Clamp the position of the vehicle to keep it inside the terrain
-	if (position.x > terrain->physicalSize.x / 2) {
-		position.x = terrain->physicalSize.x / 2;
+	if (position.x > Fence::GetSize().x / 2) {
+		position.x = Fence::GetSize().x / 2;
+		currentVelocity /= 1.1f;
 	}
-	else if (position.z > terrain->physicalSize.y / 2) {
-		position.z = terrain->physicalSize.y / 2;
+	else if (position.z > Fence::GetSize().y / 2) {
+		position.z = Fence::GetSize().y / 2;
+		currentVelocity /= 1.1f;
 	}
-	if (position.x < -terrain->physicalSize.x / 2) {
-		position.x = -terrain->physicalSize.x / 2;
+	if (position.x < -Fence::GetSize().x / 2) {
+		position.x = -Fence::GetSize().x / 2;
+		currentVelocity /= 1.1f;
 	}
-	else if (position.z < -terrain->physicalSize.y / 2) {
-		position.z = -terrain->physicalSize.y / 2;
+	else if (position.z < -Fence::GetSize().y / 2) {
+		position.z = -Fence::GetSize().y / 2;
+		currentVelocity /= 1.1f;
 	}
 
 	// Get elevation from terrain
-	float y = terrain->GetElevation(position.x, position.z);
+	float y = terrain->GetElevation(position.x, position.z) - 50;
 	if (position.y < y) {
 		position.y = y;
 	}

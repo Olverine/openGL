@@ -14,6 +14,7 @@ GLuint GetShaderProgram();
 int GetWidth();
 int GetHeight();
 GLFWwindow* GetWindow();
+float GetAspectRatio();
 
 class ShaderCompiler {
 public:

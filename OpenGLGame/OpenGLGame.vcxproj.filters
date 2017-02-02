@@ -49,10 +49,13 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Road.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Minimap.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Fence.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,11 +71,14 @@
     <ClInclude Include="ChaseCamera.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Road.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Fence.h">
-      <Filter>Header Files</Filter>
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Minimap.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Road.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,7 @@
 #include <chrono>
 #include <vector>
 #include <Fence.h>
+#include <Minimap.h>
 using namespace glm;
 
 static const float fov = 50.0f;
@@ -31,6 +32,7 @@ unsigned char* LoadMap(const char* file);
 int playerCount = 2;
 
 std::vector<GameObject*> gameObjects;
+std::vector<GameObject*> UIElements;
 
 void RenderFrameBuffer(GLuint name, GLuint shaderProgram, GLuint texture);
 
@@ -101,6 +103,8 @@ int main(int argc, char* argv) {
 	gameObjects.push_back(terrain);
 	//gameObjects.push_back(road);
 
+	UIElements.push_back(new Minimap());
+
 	for (int i = 0; i < 10; i++) {
 		Fence* f = new Fence(vec2(127000));
 		gameObjects.push_back(f);
@@ -132,14 +136,22 @@ int main(int argc, char* argv) {
 	float fogColor[] = { 1.0f, 0.0f, 1.0f, 1.0f };
 	glFogfv(GL_FOG_COLOR, fogColor);
 
-	glm::mat4 Projection[] = {
+	mat4 Projection[] = {
 		camera[0]->GetProjectionMatrix(fov),
 		camera[1]->GetProjectionMatrix(fov)
 	};
 
+	mat4 uiProjection = glm::ortho(-1, 1, -1, 1);
+
+	// Initialize gameObjects
 	for each (GameObject* go in gameObjects)
 	{
 		go->Init();
+	}
+	// Initialize UI
+	for each (GameObject* ui in UIElements)
+	{
+		ui->Init();
 	}
 
 	// ---------------------------------------------
@@ -236,6 +248,19 @@ int main(int argc, char* argv) {
 			go->Update();
 		}
 
+		// Update every ui object before rendering
+		for each (GameObject* ui in UIElements)
+		{
+			ui->Update();
+		}
+
+		// Matrices
+		glm::mat4 View;
+		glm::mat4 Model;
+		glm::mat4 mvp;
+
+		glEnable(GL_DEPTH_TEST);
+		// Render all gameObjects for all players
 		for (int i = 0; i < playerCount; i++) {
 			if (i == 0)
 				glViewport(0, 0, width, height / 2);
@@ -244,20 +269,17 @@ int main(int argc, char* argv) {
 
 			camera[i]->Update();
 
-			glm::mat4 View = camera[i]->GetViewMatrix();
-			glm::mat4 Model; 
-			glm::mat4 mvp;
+			View = camera[i]->GetViewMatrix();
 
 			for each (GameObject* go in gameObjects)
 			{
 				// Model matrix
-				glm::quat meshRot = quat(go->rotation);
-				glm::mat4 Model = glm::translate(glm::mat4(1.0f), go->position) * glm::scale(glm::mat4(1.0f), go->scale) * mat4_cast(meshRot);
-				// ModelViewProjection : multiplication of our 3 matrices
+				glm::quat objRot = quat(go->rotation);
+				glm::mat4 Model = glm::translate(glm::mat4(1.0f), go->position) * glm::scale(glm::mat4(1.0f), go->scale) * mat4_cast(objRot);
+				// ModelViewProjection matrix
 				mvp = Projection[i] * View * Model;
 
 				// Send our transformation to the currently bound shader, in the "MVP" uniform
-				// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 				glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
 				// Draw the model!
@@ -265,12 +287,25 @@ int main(int argc, char* argv) {
 			}
 		}
 
-		//RenderFrameBuffer(FramebufferName[1], quad_programID, renderedTexture[0]);
-	// Render on the whole framebuffer, complete from the lower left corner to the upper right
+		// Render on the whole framebuffer, complete from the lower left corner to the upper right
 		glViewport(0, 0, width, height);
 		RenderFrameBuffer(0, quad_programID, renderedTexture[0]);
-		//glViewport(0, height / 2, width, height / 2);
-		//RenderFrameBuffer(0, quad_programID, renderedTexture[0]);
+
+		glUseProgram(shaderProgram);
+		glDisable(GL_DEPTH_TEST);
+		// Render All UIElements on the screen
+		for each (GameObject* ui in UIElements)
+		{
+			// Model matrix
+			glm::quat objRot = quat(ui->rotation);
+			glm::mat4 Model = glm::translate(glm::mat4(1.0f), ui->position) * glm::scale(glm::mat4(1.0f), ui->scale) * mat4_cast(objRot);
+			// ModelProjection matrix
+			mvp = uiProjection * Model;
+
+			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+			ui->Render();
+		}
 
 		// Toggle fullscreen
 		if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
@@ -328,38 +363,6 @@ float Lerp(float x, float y, float a) {
 	return (x * (1.0 - a) + y * a);
 }
 
-/*void DrawLine(glm::vec3 p1, glm::vec3 p2) {
-
-	glm::mat4 Projection = mainCamera->GetProjectionMatrix(fov);
-	glm::mat4 View = mainCamera->GetViewMatrix();
-	glm::mat4 Model = glm::mat4(1.0f);
-	// ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 mvp = Projection * View * Model;
-	GLuint MatrixID = glGetUniformLocation(GetShaderProgram(), "MVP");
-	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-
-	std::vector<glm::vec3> points;
-	points.push_back(p1);
-	points.push_back(p2);
-
-	GLuint linebuffer;
-	glGenBuffers(1, &linebuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, linebuffer);
-	glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(glm::vec3), &points[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, linebuffer);
-	glVertexAttribPointer(
-		0,
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-
-	glDrawArrays(GL_LINES, 0, 2);
-}*/
-
 unsigned char* LoadMap(const char* file) {
 	printf("Loading level from file %s\n", file);
 	FILE* f = fopen(file, "rb");
@@ -387,6 +390,10 @@ int GetWidth() {
 
 int GetHeight() {
 	return height;
+}
+
+float GetAspectRatio() {
+	return (float)width / (float)height;
 }
 
 GLFWwindow* GetWindow() {

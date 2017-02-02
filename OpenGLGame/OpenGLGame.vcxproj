@@ -157,6 +157,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Minimap.cpp" />
     <ClCompile Include="Road.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="Terrain.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="ChaseCamera.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Fence.h" />
+    <ClInclude Include="Minimap.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Road.h" />
     <ClInclude Include="Vehicle.h" />

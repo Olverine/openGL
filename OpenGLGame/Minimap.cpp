@@ -37,6 +37,8 @@ void Minimap::Render()
 {
 	GameObject::Render();
 
+	RecalculateVertices();
+
 	SetColor(glm::vec3(0, 0, 0));
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -52,7 +54,7 @@ void Minimap::Render()
 		playerPosition.y = playerPosition.z;
 		playerPosition.z = 0;
 		vertices[8 + i] = playerPosition;
-		Init();
+		RecalculateVertices();
 		glPointSize(4);
 		SetColor(dynamic_cast<Vehicle*>(GetPlayer(i))->color);
 		glDrawArrays(GL_POINTS, 8 + i, 1);

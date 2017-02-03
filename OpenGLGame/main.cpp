@@ -20,8 +20,8 @@ GLuint texID;
 GLuint depthID;
 GLuint depthTexture;
 
-static int width = 1366;
-static int height = 768;
+static int width = 800;
+static int height = 600;
 static int antiAliasing = 4;
 static bool fullscreen = true;
 GLFWwindow* window;

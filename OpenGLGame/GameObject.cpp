@@ -11,8 +11,7 @@ GameObject::~GameObject()
 
 void GameObject::Init() {
 	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	RecalculateVertices();
 }
 void GameObject::Update() {
 
@@ -29,6 +28,12 @@ void GameObject::Render() {
 		0,                  // stride
 		(void*)0            // array buffer offset
 	);
+}
+
+void GameObject::RecalculateVertices()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 }
 
 void GameObject::SetColor(glm::vec3 color) {

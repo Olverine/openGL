@@ -16,6 +16,8 @@ int GetHeight();
 GLFWwindow* GetWindow();
 float GetAspectRatio();
 
+int GetPlayerCount();
+
 class ShaderCompiler {
 public:
 	static GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_path);
@@ -45,6 +47,8 @@ public:
 	virtual void Update();
 	virtual void Render();
 };
+
+GameObject* GetPlayer(int index);
 
 class Mesh : public GameObject {
 	void RenderWireFrame();

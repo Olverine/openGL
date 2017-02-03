@@ -29,7 +29,8 @@ GLFWwindow* window;
 unsigned char* levelData; 
 unsigned char* LoadMap(const char* file);
 
-int playerCount = 2;
+int playerCount = 2; 
+Vehicle* player[4];
 
 std::vector<GameObject*> gameObjects;
 std::vector<GameObject*> UIElements;
@@ -85,10 +86,8 @@ int main(int argc, char* argv) {
 
 	// Load the model
 	glm::vec3 color = glm::vec3(1, 0, 1);
-	Vehicle* player[] = { 
-		new Vehicle("spaceShip2.obj", color, shaderProgram, GLFW_JOYSTICK_1),
-		new Vehicle("spaceShip2.obj", glm::vec3(1, 1, 0), shaderProgram,GLFW_JOYSTICK_2)
-	};
+	player[0] = new Vehicle("spaceShip2.obj", color, shaderProgram, GLFW_JOYSTICK_1);
+	player[1] = new Vehicle("spaceShip2.obj", glm::vec3(1, 1, 0), shaderProgram, GLFW_JOYSTICK_2);
 	// Load level from file and generate terrain
 	levelData = LoadMap("heightmap.bmp");
 	Terrain* terrain = new Terrain(shaderProgram, levelData);
@@ -398,4 +397,13 @@ float GetAspectRatio() {
 
 GLFWwindow* GetWindow() {
 	return window;
+}
+
+int GetPlayerCount() {
+	return playerCount;
+}
+
+GameObject* GetPlayer(int index)
+{
+	return player[index];
 }

@@ -6,6 +6,7 @@ public:
 	Minimap();
 	~Minimap();
 
+	void Init();
 	void Update();
 	void Render();
 };
